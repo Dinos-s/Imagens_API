@@ -4,4 +4,8 @@ const router = require('express').Router();
 const serviceRouter = require('./services')
 router.use('/', serviceRouter)
 
+// rotas da festa
+const partyRouter = require('./parties')
+router.use('/', partyRouter)
+
 module.exports = router
