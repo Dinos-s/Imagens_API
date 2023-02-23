@@ -11,7 +11,7 @@ conn()
 
 // Rotas
 const routes = require("./routes/router")
-app.use('/img',routes)
+app.use('/img', routes)
 
 app.listen(3000, () => {
     console.log('Server Online!');
