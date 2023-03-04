@@ -3,12 +3,12 @@ const PartyModel = require('../models/Party')
 function checkPartyBudget(budget, services){
     const priceSum = services.reduce((sum, service) => {
         sum + service.price, 0
-
-        if(priceSum > budget){
-            return false
-        }
-        return true
     })
+    
+    if(priceSum > budget){
+        return false
+    }
+    return true
 }
 
 const partyController = {
@@ -24,7 +24,7 @@ const partyController = {
                     services: req.body.services
                 }
 
-                if(party.services && checkPartyBudget(party.budget, party.services)){
+                if(party.services && !checkPartyBudget(party.budget, party.services)){
                     res.status(406).json({msg: 'Orçamento insuficente'})
                     return
                 }
@@ -40,8 +40,8 @@ const partyController = {
         // GET all
         getAll: async(req, res) => {
             try {
-                const services = await PartyModel.find()
-                res.json(services)
+                const parties = await PartyModel.find()
+                res.json(parties)
             } catch (error) {
                 console.log(error);
             }
@@ -54,7 +54,7 @@ const partyController = {
                 const party = await PartyModel.findById(id)
     
                 if (!party) {
-                    res.status(404).json({msg: 'Serviço não encontrado'});
+                    res.status(404).json({msg: 'Festa não encontrada'});
                     return;
                 }
     
@@ -66,23 +66,34 @@ const partyController = {
     
         // PUT / PATCH
         update: async(req, res) => {
-            const id = req.params.id
+            try {
+                const id = req.params.id
     
-            const party = {
-                name: req.body.name,
-                description: req.body.description,
-                price: req.body.price,
-                image: req.body.image
+                const party = {
+                    title: req.body.title,
+                    author: req.body.author,
+                    description: req.body.description,
+                    budget: req.body.budget,
+                    image: req.body.image,
+                    services: req.body.services
+                }
+
+                if(party.services && !checkPartyBudget(party.budget, party.services)){
+                    res.status(406).json({msg: "Orçamento insuficiente"})
+                    return
+                }
+        
+                const updateParty = await PartyModel.findByIdAndUpdate(id, party)
+        
+                if (!updateParty) {
+                    res.status(404).json({msg: 'Party not found'})
+                    return
+                }
+
+                res.status(200).json({msg:'Festa atualizada com sucesso'})
+            } catch (error) {
+                console.log(error);
             }
-    
-            const updateService = await PartyModel.findByIdAndUpdate(id, party)
-    
-            if (!updateService) {
-                res.status(404).json({msg: 'Service not found'})
-                return
-            }
-    
-            res.status(200).json({msg:'atualizado com sucesso'})
         },
     
         // DELETE
@@ -91,14 +102,14 @@ const partyController = {
                 const id = req.params.id
                 const party = await PartyModel.findById(id)
     
-                if (!service) {
+                if (!party) {
                     res.status(404).json({msg: 'Serviço não encontrado'});
                     return;
                 }
     
-                const deleteService = await PartyModel.findByIdAndDelete(id)
+                const deleteParty = await PartyModel.findByIdAndDelete(id)
     
-                res.status(200).json({deleteService, msg: 'Serviço excluido com sucesso'});
+                res.status(200).json({deleteParty, msg: 'Festa excluida com sucesso'});
     
             } catch (error) {
                 console.log(error);

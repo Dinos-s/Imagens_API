@@ -47,23 +47,27 @@ const serviceController = {
 
     // PUT / PATCH
     update: async(req, res) => {
-        const id = req.params.id
+        try {
+            const id = req.params.id
 
-        const service = {
-            name: req.body.name,
-            description: req.body.description,
-            price: req.body.price,
-            image: req.body.image
+            const service = {
+                name: req.body.name,
+                description: req.body.description,
+                price: req.body.price,
+                image: req.body.image
+            }
+    
+            const updateService = await ServiceModel.findByIdAndUpdate(id, service)
+    
+            if (!updateService) {
+                res.status(404).json({msg: 'Service not found'})
+                return
+            }
+    
+            res.status(200).json({msg:'atualizado com sucesso'})
+        } catch (error) {
+            console.log(error);
         }
-
-        const updateService = await ServiceModel.findByIdAndUpdate(id, service)
-
-        if (!updateService) {
-            res.status(404).json({msg: 'Service not found'})
-            return
-        }
-
-        res.status(200).json({msg:'atualizado com sucesso'})
     },
 
     // DELETE
